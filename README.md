@@ -1,1 +1,0 @@
-# bmp_turing_joint_patterning
