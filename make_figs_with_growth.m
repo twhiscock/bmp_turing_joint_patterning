@@ -1,6 +1,7 @@
 %% Clear and close things (optional)
 clear all; close all;
 addpath("SSB_scripts/")
+%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Define geometry
 params.total_growth_rate = 0.02;        
@@ -100,10 +101,13 @@ PFR_heatmap = simulate_with_growth(p_PFR,reaction_function,[60 87.6 111 139]);
 %% Vary joint number
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Increasing joint number: reference
-p_reference_twojoints = p_ref; 
-p_reference_twojoints.reaction_parameters(2) = 2;
+p_reference_twojoints = p_PFR; 
+
 p_reference_twojoints.initial_digit_length = 10;
-p_reference_twojoints.time_to_initalize_pattern = 100;
+p_reference_twojoints.domain_length = 55;
+
+p_reference_twojoints.reaction_parameters(2) = 2;
+
 p_reference_twojoints.filenm = "extra_joint_ref";
 extra_joint_ref = simulate_with_growth(p_reference_twojoints,reaction_function,[]);
 
@@ -111,17 +115,12 @@ extra_joint_ref = simulate_with_growth(p_reference_twojoints,reaction_function,[
 p_wavelength_twojoints = p_reference_twojoints; 
 p_wavelength_twojoints.reaction_parameters(2) = 4;
 
-%we also need to alter initial condition settings, to ensure we begin with
-%a single joint to mimic the reference
-p_wavelength_twojoints.initial_digit_length = 7;
-p_wavelength_twojoints.time_to_initalize_pattern = 80;
-
 p_wavelength_twojoints.filenm = "shorter_wavelength";
 extra_joint = simulate_with_growth(p_wavelength_twojoints,reaction_function,[]);
 
 %% Increasing joint number: longer growth duration
 p_longer_growth = p_reference_twojoints; 
-p_longer_growth.domain_length = 60;
+p_longer_growth.domain_length = 65;
 p_longer_growth.filenm = "p_longer_growth";
 longer_growth = simulate_with_growth(p_longer_growth,reaction_function,[]);
 
@@ -131,52 +130,34 @@ p_faster_growth = p_reference_twojoints;
 % growth duration is determined implicitly whenever digit grows to end of
 % domain. Therefore, specify domain length. Then compute growth rate such
 % that the time it takes to reach the end of the domain is the same
-p_faster_growth.domain_length = 60;
+p_faster_growth.domain_length = 65;
 p_faster_growth.total_growth_rate = p_reference_twojoints.total_growth_rate * (p_faster_growth.domain_length - p_faster_growth.initial_digit_length)/(p_reference_twojoints.domain_length - p_ref.initial_digit_length);
 p_faster_growth.filenm = "p_faster_growth";
 faster_growth = simulate_with_growth(p_faster_growth,reaction_function,[]);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% MUTANTS 
+%% BEADS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% GDF5(-/-)
-p_gdf5_mutant3 = p_ref;
-p_gdf5_mutant3.reaction_parameters(6) = 0;
-p_gdf5_mutant3.time_step = 0.002;
-p_gdf5_mutant3.filenm = "gdf5_mutant3";
-p_gdf5_mutant3.domain_length = 40;
-gdf5_3 = simulate_with_growth(p_gdf5_mutant3,reaction_function,[]);
-
-%% reference
-p_reference3 = p_ref;
-p_reference3.filenm = "reference3";
+p_reference3 = p_PFR;
+p_reference3.reaction_parameters(2) = 3;   
 p_reference3.domain_length = 40;
-reference3 = simulate_with_growth(p_reference3,reaction_function,[]);
+p_reference3.initial_digit_length = 10;
 
-%% NOG(-/-) (3 joints)
-p_nog_mutant3 = p_ref;
-p_nog_mutant3.filenm = "nog_mutant3";
-p_nog_mutant3.reaction_parameters(5) = 0;
-p_nog_mutant3.domain_length = 40;
-nog3 = simulate_with_growth(p_nog_mutant3,reaction_function,[]);
 
 %% GDF5 bead: control (3 joints)
-p_gdf5_bead_control3 = p_ref;
+p_gdf5_bead_control3 = p_reference3;
 p_gdf5_bead_control3.filenm = "gdf5_bead_control3";
 p_gdf5_bead_control3.fraction_of_growth_at_tip = 1.0;
 bead_params.species = 1;
 bead_params.amplitude = 0;
 bead_params.location = 17;
-bead_params.width = 2;
-p_gdf5_bead_control3.initial_digit_length = 8;
-p_gdf5_bead_control3.domain_length = 33;
-p_gdf5_bead_control3.time_to_initalize_pattern = 250;
+bead_params.width = 5;
 
 bead_control3 = simulate_with_growth_and_bead(p_gdf5_bead_control3,reaction_function,[], bead_params);
 
 %% GDF5 bead: treatment (3 joints)
-p_gdf5_bead3= p_ref;
+p_gdf5_bead3= p_reference3;
 p_gdf5_bead3.filenm = "gdf5_bead3";
 
 p_gdf5_bead3.fraction_of_growth_at_tip = 1.0;
@@ -184,18 +165,44 @@ p_gdf5_bead3.fraction_of_growth_at_tip = 1.0;
 bead_params.species = 1;
 bead_params.amplitude = .1;
 bead_params.location = 17;
-bead_params.width = 2;
+bead_params.width = 5;
 
-p_gdf5_bead3.initial_digit_length = 8;
-p_gdf5_bead3.domain_length = 33;
-p_gdf5_bead3.time_to_initalize_pattern = 250;
 
 bead3 = simulate_with_growth_and_bead(p_gdf5_bead3,reaction_function,[], bead_params);
 
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% MUTANTS 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% reference
+p_reference3 = p_PFR;
+p_reference3.reaction_parameters(2) = 3;   
+p_reference3.domain_length = 45;
+p_reference3.initial_digit_length = 10;
+p_reference3.filenm = "reference3";
+reference3 = simulate_with_growth(p_reference3,reaction_function,[]);
+
+%% GDF5(-/-)
+p_gdf5_mutant3 = p_reference3;
+p_gdf5_mutant3.reaction_parameters(6) = 0;
+p_gdf5_mutant3.time_step = 0.002;
+p_gdf5_mutant3.filenm = "gdf5_mutant3";
+p_gdf5_mutant3.boundary.parameters(5) = 0.0;
+gdf5_3 = simulate_with_growth(p_gdf5_mutant3,reaction_function,[]);
+
+
+%% NOG(-/-) (3 joints)
+p_nog_mutant3 = p_reference3;
+p_nog_mutant3.filenm = "nog_mutant3";
+p_nog_mutant3.reaction_parameters(5) = 0;
+nog3 = simulate_with_growth(p_nog_mutant3,reaction_function,[]);
+
+
 %% Save to file
 save data/with_growth.mat
+
 
 
 
